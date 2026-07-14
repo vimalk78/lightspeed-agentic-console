@@ -35,25 +35,27 @@ const columns: TableColumn<AgenticRunK8s>[] = [
   { id: 'age', sort: 'metadata.creationTimestamp', title: 'Age' },
 ];
 
-const filters: RowFilter<AgenticRunK8s>[] = [
+const buildFilters = (t: (s: string) => string): RowFilter<AgenticRunK8s>[] => [
   {
     filter: (filterValue, obj) => {
       const selected = filterValue?.selected || [];
       const phase = derivePhaseFromConditions(obj?.status?.conditions as AgenticRunCondition[]);
       return !selected.length || selected.includes(phase);
     },
-    filterGroupName: 'Phase',
+    filterGroupName: t('Phase'),
     items: [
-      { id: 'Pending', title: 'Pending' },
-      { id: 'Analyzing', title: 'Analyzing' },
-      { id: 'Executing', title: 'Executing' },
-      { id: 'Verifying', title: 'Verifying' },
-      { id: 'Escalating', title: 'Escalating' },
-      { id: 'Completed', title: 'Completed' },
-      { id: 'Failed', title: 'Failed' },
-      { id: 'Denied', title: 'Denied' },
-      { id: 'Escalated', title: 'Escalated' },
-      { id: 'EmergencyStopped', title: 'Emergency Stopped' },
+      { id: 'Pending', title: t('Pending') },
+      { id: 'Analyzing', title: t('Analyzing') },
+      { id: 'Proposed', title: t('Proposed') },
+      { id: 'NoActionRequired', title: t('No Action Required') },
+      { id: 'Executing', title: t('Executing') },
+      { id: 'Verifying', title: t('Verifying') },
+      { id: 'Escalating', title: t('Escalating') },
+      { id: 'Completed', title: t('Completed') },
+      { id: 'Failed', title: t('Failed') },
+      { id: 'Denied', title: t('Denied') },
+      { id: 'Escalated', title: t('Escalated') },
+      { id: 'EmergencyStopped', title: t('Emergency Stopped') },
     ],
     reducer: (obj) => derivePhaseFromConditions(obj?.status?.conditions as AgenticRunCondition[]),
     type: 'run-phase',
@@ -128,6 +130,7 @@ const RunListPage: React.FC = () => {
     namespaced: true,
   });
 
+  const filters = React.useMemo(() => buildFilters(t), [t]);
   const [data, filteredData, onFilterChange] = useListPageFilter(runs, filters);
 
   return (
